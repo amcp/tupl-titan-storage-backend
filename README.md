@@ -35,66 +35,41 @@ The graph has a vertex per comic book character with an edge to each of the
 comic books in which they appeared.
 
 ### Load a subset of the Marvel Universe Social Graph
-1. Clone the repository in GitHub.
+1. Install [Docker](https://www.docker.com/products/docker-toolbox).
+2. Start a Gremlin server backed by Titan and point a Gremlin shell at it in a
+Docker container.
 
     ```
-    git clone https://github.com/classmethod/tupl-titan-storage-backend.git
+    docker exec -i -t $(docker run -d -p 8182:8182 amcp/tupl-titan-server:latest) /gremlin/bin/gremlin.sh
     ```
-2. Run the `install` target to copy some dependencies to the target folder.
-
-    ```
-    mvn install
-    ```
-3. Clean up old ElasticSearch indexes.
-
-    ```
-    rm -rf /tmp/searchindex
-    ```
-4. Install Titan Server with the Classmethod Tupl Storage Backend for Titan, which
-includes Gremlin Server.
-
-    ```
-    src/test/resources/install-gremlin-server.sh
-    ```
-5. Change directories to the Gremlin Server home.
-
-    ```
-    cd server/tupl-titan100-storage-backend-1.0.0-hadoop1
-    ```
-6. Start Gremlin Server:
-
-    ```
-    bin/gremlin-server.sh ${PWD}/conf/gremlin-server/gremlin-server.yaml
-    ```
-7. Start a Gremlin shell with `bin/gremlin.sh` and connect to the Gremlin Server
-endpoint.
+3. Connect to the Gremlin server remote in the same Docker container.
 
     ```
     :remote connect tinkerpop.server conf/remote.yaml
     ```
-8. Load the first 100 lines of the Marvel graph using the Gremlin shell.
+4. Load the first 100 lines of the Marvel graph using the Gremlin shell.
 
     ```
     :> jp.classmethod.titan.example.MarvelGraphFactory.load(graph, 100, false)
     ```
-9. Print the characters and the comic-books they appeared in where the
+5. Print the characters and the comic-books they appeared in where the
 characters had a weapon that was a shield or claws.
 
     ```
     :> g.V().as('character').has('weapon', within('shield','claws')).out('appeared').as('comic-book').select('character','comic-book')
     ```
-10. Print the characters and the comic-books they appeared in where the
+6. Print the characters and the comic-books they appeared in where the
 characters had a weapon that was not a shield or claws.
 
     ```
     :> g.V().as('character').has('weapon', without('shield','claws')).out('appeared').as('comic-book').select('character','comic-book')
     ```
-11. Print a sorted list of the characters that appear in comic-book AVF 4.
+7. Print a sorted list of the characters that appear in comic-book AVF 4.
 
     ```
     :> g.V().has('comic-book', 'AVF 4').in('appeared').values('character').order()
     ```
-12. Print a sorted list of the characters that appear in comic-book AVF 4 that
+8. Print a sorted list of the characters that appear in comic-book AVF 4 that
 have a weapon that is not a shield or claws.
 
     ```
@@ -102,11 +77,19 @@ have a weapon that is not a shield or claws.
     ```
 
 ### Complete the TinkerPop tutorial
-1. Repeat steps 1 through 5, and step 7 of the Marvel graph section.
-2. Now you can follow along the [TinkerPop Tutorial](http://tinkerpop.apache.org/docs/3.1.1-incubating/tutorials/getting-started/). When the tutorial and documentation refer to the `TinkerFactory.createModern()`, you can create the graph with: `jp.classmethod.titan.example.TuplTinkerFactory.createModern()`. When the tutorial and documentation refer to the baby graph, you can create the graph with: `jp.classmethod.titan.example.TuplTinkerFactory.creatBaby()`. TuplTinkerFactory adds schema elements and makes adjustments to the original graph that are necessary for working through the tutorial with the Classmethod Tupl Storage Backend for Titan.
+1. Repeat steps 1 through 3 of the Marvel graph section.
+2. Now you can follow along the
+[TinkerPop Tutorial](http://tinkerpop.apache.org/docs/3.1.1-incubating/tutorials/getting-started/).
+When the tutorial and documentation refer to the `TinkerFactory.createModern()`,
+you can create the graph with:
+`jp.classmethod.titan.example.TuplTinkerFactory.createModern()`. When the tutorial
+and documentation refer to the baby graph, you can create the graph with:
+`jp.classmethod.titan.example.TuplTinkerFactory.creatBaby()`. TuplTinkerFactory adds
+schema elements and makes adjustments to the original graph that are necessary for
+working through the tutorial with the Classmethod Tupl Storage Backend for Titan.
 
 ### Load the Graph of the Gods
-1. Repeat steps 1 through 7 of the Marvel graph section.
+1. Repeat steps 1 through 3 of the Marvel graph section.
 2. Load the Graph of the Gods.
 
     ```
