@@ -13,14 +13,14 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package jp.classmethod.titan.diskstorage.tupl;
+package jp.classmethod.janusgraph.diskstorage.tupl;
 
-import com.thinkaurelius.titan.diskstorage.BackendException;
-import com.thinkaurelius.titan.diskstorage.KeyValueStoreTest;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.keyvalue.OrderedKeyValueStoreManager;
+import org.janusgraph.diskstorage.BackendException;
+import org.janusgraph.diskstorage.KeyValueStoreTest;
+import org.janusgraph.diskstorage.keycolumnvalue.keyvalue.OrderedKeyValueStoreManager;
 
-import jp.classmethod.titan.TuplStorageSetup;
-import jp.classmethod.titan.diskstorage.tupl.TuplStoreManager;
+import jp.classmethod.janusgraph.TuplStorageSetup;
+import jp.classmethod.janusgraph.diskstorage.tupl.TuplStoreManager;
 
 /**
  * Tests for the Tupl KV Store

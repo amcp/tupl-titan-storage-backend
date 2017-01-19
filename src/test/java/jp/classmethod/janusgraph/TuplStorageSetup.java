@@ -13,7 +13,7 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package jp.classmethod.titan;
+package jp.classmethod.janusgraph;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -30,23 +30,23 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.elasticsearch.common.collect.Iterables;
 import org.junit.Test;
 
-import com.thinkaurelius.titan.StorageSetup;
-import com.thinkaurelius.titan.core.PropertyKey;
-import com.thinkaurelius.titan.core.TitanVertex;
-import com.thinkaurelius.titan.core.VertexLabel;
-import com.thinkaurelius.titan.core.schema.TitanManagement;
-import com.thinkaurelius.titan.core.util.TitanId;
-import com.thinkaurelius.titan.diskstorage.BackendException;
-import com.thinkaurelius.titan.diskstorage.configuration.BasicConfiguration;
-import com.thinkaurelius.titan.diskstorage.configuration.WriteConfiguration;
-import com.thinkaurelius.titan.diskstorage.configuration.backend.CommonsConfiguration;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.keyvalue.OrderedKeyValueStoreManagerAdapter;
-import com.thinkaurelius.titan.graphdb.configuration.GraphDatabaseConfiguration;
-import com.thinkaurelius.titan.graphdb.database.StandardTitanGraph;
-import com.thinkaurelius.titan.graphdb.transaction.StandardTitanTx;
+import jp.classmethod.janusgraph.diskstorage.tupl.TuplStoreManager;
 
-import jp.classmethod.titan.diskstorage.tupl.TuplStoreManager;
+import org.janusgraph.StorageSetup;
+import org.janusgraph.core.PropertyKey;
+import org.janusgraph.core.JanusGraphVertex;
+import org.janusgraph.core.VertexLabel;
+import org.janusgraph.core.schema.JanusGraphManagement;
+import org.janusgraph.core.util.JanusGraphId;
+import org.janusgraph.diskstorage.BackendException;
+import org.janusgraph.diskstorage.configuration.BasicConfiguration;
+import org.janusgraph.diskstorage.configuration.WriteConfiguration;
+import org.janusgraph.diskstorage.configuration.backend.CommonsConfiguration;
+import org.janusgraph.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
+import org.janusgraph.diskstorage.keycolumnvalue.keyvalue.OrderedKeyValueStoreManagerAdapter;
+import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
+import org.janusgraph.graphdb.database.StandardJanusGraph;
+import org.janusgraph.graphdb.transaction.StandardJanusGraphTx;
 
 /**
  * Utility methods to create graph configurations
@@ -65,7 +65,7 @@ public class TuplStorageSetup extends StorageSetup {
     public static Configuration getTuplGraphBaseConfiguration() {
         BaseConfiguration config = new BaseConfiguration();
         Configuration storage = config.subset("storage");
-        storage.addProperty(GraphDatabaseConfiguration.STORAGE_DIRECTORY.getName(), getHomeDir());
+        storage.addProperty(GraphDatabaseConfiguration.STORAGE_DIRECTORY.getName(), getHomeDir(null));
         storage.addProperty(GraphDatabaseConfiguration.STORAGE_BACKEND.getName(),
                 "jp.classmethod.titan.diskstorage.tupl.TuplStoreManager");
         return config;
@@ -86,15 +86,15 @@ public class TuplStorageSetup extends StorageSetup {
         return new OrderedKeyValueStoreManagerAdapter(sm);
     }
 
-    public Vertex getOrCreate(String value, StandardTitanTx tx, VertexLabel label, boolean custom)
+    public Vertex getOrCreate(String value, StandardJanusGraphTx tx, VertexLabel label, boolean custom)
     {
         final Long longVal = Long.valueOf(value); //the value used in data files
         final long titanVertexId =
-                TitanId.toVertexId((longVal << 1) + 1 /*move over 1 bit for 2 partitions (2^1 = 2)*/);
+        		JanusGraphId.toVertexId((longVal << 1) + 1 /*move over 1 bit for 2 partitions (2^1 = 2)*/);
         final GraphTraversal<Vertex, Vertex> t = tx.traversal().V().has(NODE_ID, value);
-        final TitanVertex vertex;
+        final JanusGraphVertex vertex;
         if(t.hasNext()) {
-            vertex = (TitanVertex) t.next();
+            vertex = (JanusGraphVertex) t.next();
         } else {
             if(custom) {
                 vertex = tx.addVertex(titanVertexId, label);
@@ -142,9 +142,9 @@ public class TuplStorageSetup extends StorageSetup {
         //create graph
         final CommonsConfiguration cc = new CommonsConfiguration(conf);
         final GraphDatabaseConfiguration dbconfig = new GraphDatabaseConfiguration(cc);
-        try(final StandardTitanGraph graph = new StandardTitanGraph(dbconfig)) {
+        try(final StandardJanusGraph graph = new StandardJanusGraph(dbconfig)) {
             //schema
-            final TitanManagement mgmt = graph.openManagement();
+            final JanusGraphManagement mgmt = graph.openManagement();
             mgmt.makeVertexLabel(NODE_LABEL).make();
             final PropertyKey key = mgmt.makePropertyKey(NODE_ID).dataType(Integer.class).make();
             mgmt.buildIndex(NODE_ID, Vertex.class).addKey(key).unique().buildCompositeIndex();
@@ -156,7 +156,7 @@ public class TuplStorageSetup extends StorageSetup {
             graph.tx().open();
             final VertexLabel nodeLabel = graph.getVertexLabel(NODE_LABEL);
             assertEquals(1, graph.getOpenTransactions().size());
-            final StandardTitanTx tx = (StandardTitanTx) Iterables.getOnlyElement(graph.getOpenTransactions());
+            final StandardJanusGraphTx tx = (StandardJanusGraphTx) Iterables.getOnlyElement(graph.getOpenTransactions());
 
             getOrCreate("1" /*logicalid*/, tx, nodeLabel, custom);
             getOrCreate("2" /*logicalid*/, tx, nodeLabel, custom);

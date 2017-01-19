@@ -12,20 +12,19 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package jp.classmethod.titan.graphdb.tupl;
+package jp.classmethod.janusgraph.graphdb.database.management;
 
-import com.thinkaurelius.titan.diskstorage.configuration.WriteConfiguration;
-import com.thinkaurelius.titan.graphdb.TitanGraphConcurrentTest;
+import org.janusgraph.diskstorage.configuration.WriteConfiguration;
+import org.janusgraph.graphdb.database.management.ManagementTest;
 
-import jp.classmethod.titan.TuplStorageSetup;
+import jp.classmethod.janusgraph.TuplStorageSetup;
 
 /**
- * 
+ * Test schema naming constraint enforcement
  * @author Alexander Patrikalakis
  *
  */
-public class TuplGraphConcurrentTest extends TitanGraphConcurrentTest {
-
+public class TuplManagementTest extends ManagementTest {
     @Override
     public WriteConfiguration getConfiguration() {
         return TuplStorageSetup.getTuplStorageWriteConfiguration();

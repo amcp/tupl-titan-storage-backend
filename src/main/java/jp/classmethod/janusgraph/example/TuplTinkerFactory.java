@@ -13,7 +13,7 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package jp.classmethod.titan.example;
+package jp.classmethod.janusgraph.example;
 
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
@@ -22,11 +22,11 @@ import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty;
 
-import com.thinkaurelius.titan.core.Cardinality;
-import com.thinkaurelius.titan.core.PropertyKey;
-import com.thinkaurelius.titan.core.TitanFactory;
-import com.thinkaurelius.titan.core.TitanGraph;
-import com.thinkaurelius.titan.core.schema.TitanManagement;
+import org.janusgraph.core.Cardinality;
+import org.janusgraph.core.PropertyKey;
+import org.janusgraph.core.JanusGraphFactory;
+import org.janusgraph.core.JanusGraph;
+import org.janusgraph.core.schema.JanusGraphManagement;
 
 /**
  * Original class:
@@ -89,8 +89,8 @@ public class TuplTinkerFactory {
     private static Graph openTuplGraph() {
         final Configuration conf = new BaseConfiguration();
         conf.addProperty("storage.backend", "jp.classmethod.titan.diskstorage.tupl.TuplStoreManager");
-        final TitanGraph g = TitanFactory.open(conf);
-        final TitanManagement mgmt = g.openManagement();
+        final JanusGraph g = JanusGraphFactory.open(conf);
+        final JanusGraphManagement mgmt = g.openManagement();
         final PropertyKey nameKey = mgmt.makePropertyKey(NAME).cardinality(Cardinality.SINGLE).dataType(String.class).make();
         mgmt.buildIndex("nameKeyIndex", Vertex.class).addKey(nameKey).unique().buildCompositeIndex();
         mgmt.commit();
@@ -152,8 +152,8 @@ public class TuplTinkerFactory {
     public static Graph createTheCrew() {
         final Configuration conf = new BaseConfiguration();
         conf.addProperty("storage.backend", "jp.classmethod.titan.diskstorage.tupl.TuplStoreManager");
-        final TitanGraph g = TitanFactory.open(conf);
-        final TitanManagement mgmt = g.openManagement();
+        final JanusGraph g = JanusGraphFactory.open(conf);
+        final JanusGraphManagement mgmt = g.openManagement();
         mgmt.makePropertyKey(LOCATION).cardinality(Cardinality.LIST).dataType(String.class).make();
         mgmt.makePropertyKey(START_TIME).cardinality(Cardinality.LIST).dataType(Integer.class).make();
         mgmt.makePropertyKey(END_TIME).cardinality(Cardinality.LIST).dataType(Integer.class).make();

@@ -12,28 +12,28 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package jp.classmethod.titan.graphdb.tupl;
+package jp.classmethod.janusgraph.graphdb.tupl;
 
-import com.thinkaurelius.titan.diskstorage.configuration.WriteConfiguration;
-import com.thinkaurelius.titan.graphdb.TitanGraphTest;
+import org.janusgraph.diskstorage.configuration.WriteConfiguration;
+import org.janusgraph.graphdb.JanusGraphOperationCountingTest;
 
-import jp.classmethod.titan.TuplStorageSetup;
+import jp.classmethod.janusgraph.TuplStorageSetup;
 
 /**
  * 
  * @author Alexander Patrikalakis
  *
  */
-public class TuplGraphTest extends TitanGraphTest {
+public class TuplOperationCountingTest extends JanusGraphOperationCountingTest {
 
     @Override
-    protected boolean isLockingOptimistic() {
-        return false;
+    public WriteConfiguration getBaseConfiguration() {
+        return TuplStorageSetup.getTuplStorageWriteConfiguration();
     }
 
     @Override
-    public WriteConfiguration getConfiguration() {
-        return TuplStorageSetup.getTuplStorageWriteConfiguration();
+    public boolean storeUsesConsistentKeyLocker() {
+        return false;
     }
 
 }

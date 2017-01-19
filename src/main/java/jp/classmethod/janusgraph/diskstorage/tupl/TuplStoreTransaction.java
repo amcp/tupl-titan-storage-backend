@@ -12,7 +12,7 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package jp.classmethod.titan.diskstorage.tupl;
+package jp.classmethod.janusgraph.diskstorage.tupl;
 
 import java.io.IOException;
 
@@ -23,12 +23,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
-import com.thinkaurelius.titan.diskstorage.BackendException;
-import com.thinkaurelius.titan.diskstorage.BaseTransactionConfig;
-import com.thinkaurelius.titan.diskstorage.PermanentBackendException;
-import com.thinkaurelius.titan.diskstorage.StaticBuffer;
-import com.thinkaurelius.titan.diskstorage.common.AbstractStoreTransaction;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.StoreTransaction;
+import org.janusgraph.diskstorage.BackendException;
+import org.janusgraph.diskstorage.BaseTransactionConfig;
+import org.janusgraph.diskstorage.PermanentBackendException;
+import org.janusgraph.diskstorage.StaticBuffer;
+import org.janusgraph.diskstorage.common.AbstractStoreTransaction;
+import org.janusgraph.diskstorage.keycolumnvalue.StoreTransaction;
 
 /**
  * 

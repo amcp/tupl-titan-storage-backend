@@ -12,22 +12,23 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package jp.classmethod.titan.graphdb.tupl;
+package jp.classmethod.janusgraph.diskstorage.tupl;
 
-import com.thinkaurelius.titan.diskstorage.configuration.WriteConfiguration;
-import com.thinkaurelius.titan.graphdb.TitanPartitionGraphTest;
+import org.janusgraph.diskstorage.BackendException;
+import org.janusgraph.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
+import org.janusgraph.diskstorage.log.KCVSLogTest;
 
-import jp.classmethod.titan.TuplStorageSetup;
+import jp.classmethod.janusgraph.TuplStorageSetup;
 
 /**
- * 
+ * Log tests for the Tupl KV Store
  * @author Alexander Patrikalakis
  *
  */
-public class TuplPartitionGraphTest extends TitanPartitionGraphTest {
+public class TuplLogTest extends KCVSLogTest {
     @Override
-    public WriteConfiguration getBaseConfiguration() {
-        return TuplStorageSetup.getTuplStorageWriteConfiguration();
+    public KeyColumnValueStoreManager openStorageManager() throws BackendException {
+        return TuplStorageSetup.getKCVStorageManager();
     }
 
 }

@@ -12,21 +12,21 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package jp.classmethod.titan.graphdb.tupl;
+package jp.classmethod.janusgraph.graphdb.tupl;
 
-import com.thinkaurelius.titan.diskstorage.configuration.WriteConfiguration;
-import com.thinkaurelius.titan.olap.OLAPTest;
+import org.janusgraph.diskstorage.configuration.WriteConfiguration;
+import org.janusgraph.graphdb.JanusGraphPartitionGraphTest;
 
-import jp.classmethod.titan.TuplStorageSetup;
+import jp.classmethod.janusgraph.TuplStorageSetup;
 
 /**
  * 
  * @author Alexander Patrikalakis
  *
  */
-public class TuplOLAPTest extends OLAPTest {
+public class TuplPartitionGraphTest extends JanusGraphPartitionGraphTest {
     @Override
-    public WriteConfiguration getConfiguration() {
+    public WriteConfiguration getBaseConfiguration() {
         return TuplStorageSetup.getTuplStorageWriteConfiguration();
     }
 

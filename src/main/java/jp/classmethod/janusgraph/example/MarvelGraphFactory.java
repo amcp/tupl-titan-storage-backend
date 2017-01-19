@@ -13,7 +13,7 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package jp.classmethod.titan.example;
+package jp.classmethod.janusgraph.example;
 
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -40,11 +40,11 @@ import au.com.bytecode.opencsv.CSVReader;
 
 import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricRegistry;
-import com.thinkaurelius.titan.core.Multiplicity;
-import com.thinkaurelius.titan.core.PropertyKey;
-import com.thinkaurelius.titan.core.TitanGraph;
-import com.thinkaurelius.titan.core.schema.TitanManagement;
-import com.thinkaurelius.titan.util.stats.MetricManager;
+import org.janusgraph.core.Multiplicity;
+import org.janusgraph.core.PropertyKey;
+import org.janusgraph.core.JanusGraph;
+import org.janusgraph.core.schema.JanusGraphManagement;
+import org.janusgraph.util.stats.MetricManager;
 
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
@@ -75,9 +75,9 @@ public class MarvelGraphFactory {
     private static final AtomicInteger COMPLETED_TASK_COUNT = new AtomicInteger(0);
     private static final int POOL_SIZE = 10;
 
-    public static void load(final TitanGraph graph, final int rowsToLoad, final boolean report) throws Exception {
+    public static void load(final JanusGraph graph, final int rowsToLoad, final boolean report) throws Exception {
 
-        TitanManagement mgmt = graph.openManagement();
+    	JanusGraphManagement mgmt = graph.openManagement();
         if (mgmt.getGraphIndex(CHARACTER) == null) {
             final PropertyKey characterKey = mgmt.makePropertyKey(CHARACTER).dataType(String.class).make();
             mgmt.buildIndex(CHARACTER, Vertex.class).addKey(characterKey).unique().buildCompositeIndex();
@@ -189,10 +189,10 @@ public class MarvelGraphFactory {
     }
 
     public static class BatchCommand implements Runnable {
-        final TitanGraph graph;
+        final JanusGraph graph;
         final BlockingQueue<Runnable> commands;
 
-        public BatchCommand(TitanGraph graph, BlockingQueue<Runnable> commands) {
+        public BatchCommand(JanusGraph graph, BlockingQueue<Runnable> commands) {
             this.commands = commands;
             this.graph = graph;
         }
@@ -229,9 +229,9 @@ public class MarvelGraphFactory {
 
     public static class ComicBookCreationCommand implements Runnable {
         final String comicBook;
-        final TitanGraph graph;
+        final JanusGraph graph;
 
-        public ComicBookCreationCommand(final TitanGraph graph, final String comicBook) {
+        public ComicBookCreationCommand(final JanusGraph graph, final String comicBook) {
             this.comicBook = comicBook;
             this.graph = graph;
         }
@@ -241,7 +241,7 @@ public class MarvelGraphFactory {
             createComicBook(graph, comicBook);
         }
 
-        private static Vertex createComicBook(TitanGraph graph, String value) {
+        private static Vertex createComicBook(JanusGraph graph, String value) {
             long start = System.currentTimeMillis();
 
             Vertex vertex = graph.addVertex();
@@ -257,9 +257,9 @@ public class MarvelGraphFactory {
 
     public static class CharacterCreationCommand implements Runnable {
         final String character;
-        final TitanGraph graph;
+        final JanusGraph graph;
 
-        public CharacterCreationCommand(final TitanGraph graph, final String character) {
+        public CharacterCreationCommand(final JanusGraph graph, final String character) {
             this.character = character;
             this.graph = graph;
         }
@@ -269,7 +269,7 @@ public class MarvelGraphFactory {
             createCharacter(graph, character);
         }
 
-        private static Vertex createCharacter(TitanGraph graph, String value) {
+        private static Vertex createCharacter(JanusGraph graph, String value) {
             long start = System.currentTimeMillis();
 
             Vertex vertex = graph.addVertex();
@@ -285,10 +285,10 @@ public class MarvelGraphFactory {
     }
 
     public static class AppearedCommand implements Runnable {
-        final TitanGraph graph;
+        final JanusGraph graph;
         final Appeared appeared;
 
-        public AppearedCommand(final TitanGraph graph, Appeared appeared) {
+        public AppearedCommand(final JanusGraph graph, Appeared appeared) {
             this.graph = graph;
             this.appeared = appeared;
         }
@@ -308,7 +308,7 @@ public class MarvelGraphFactory {
 
     }
 
-    protected static void processLine(final TitanGraph graph, Appeared appeared) {
+    protected static void processLine(final JanusGraph graph, Appeared appeared) {
         long start = System.currentTimeMillis();
         process(graph, appeared);
         long end = System.currentTimeMillis();
@@ -316,7 +316,7 @@ public class MarvelGraphFactory {
         REGISTRY.timer(TIMER_LINE).update(time, TimeUnit.MILLISECONDS);
     }
 
-    private static void process(TitanGraph graph, Appeared appeared) {
+    private static void process(JanusGraph graph, Appeared appeared) {
         Vertex comicBookVertex = get(graph, COMIC_BOOK, appeared.getComicBook());
         if (null == comicBookVertex) {
             REGISTRY.counter("error.missingComicBook." + appeared.getComicBook()).inc();
@@ -333,7 +333,7 @@ public class MarvelGraphFactory {
         characterVertex.addEdge(APPEARED, comicBookVertex);
     }
 
-    private static Vertex get(TitanGraph graph, String key, String value) {
+    private static Vertex get(JanusGraph graph, String key, String value) {
         final GraphTraversalSource g = graph.traversal();
         final Iterator<Vertex> it = g.V().has(key, value);
         return it.hasNext() ? it.next() : null;

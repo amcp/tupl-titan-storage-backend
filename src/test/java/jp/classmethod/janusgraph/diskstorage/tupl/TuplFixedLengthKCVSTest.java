@@ -13,19 +13,21 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package jp.classmethod.titan.diskstorage.tupl;
+package jp.classmethod.janusgraph.diskstorage.tupl;
 
 import java.util.concurrent.ExecutionException;
 
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.thinkaurelius.titan.diskstorage.BackendException;
-import com.thinkaurelius.titan.diskstorage.KeyColumnValueStoreTest;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.keyvalue.OrderedKeyValueStoreManagerAdapter;
 
-import jp.classmethod.titan.TuplStorageSetup;
+import jp.classmethod.janusgraph.TuplStorageSetup;
+import jp.classmethod.janusgraph.diskstorage.tupl.TuplStoreManager;
+
+import org.janusgraph.diskstorage.BackendException;
+import org.janusgraph.diskstorage.KeyColumnValueStoreTest;
+import org.janusgraph.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
+import org.janusgraph.diskstorage.keycolumnvalue.keyvalue.OrderedKeyValueStoreManagerAdapter;
 
 /**
  * @author Alexander Patrikalakis

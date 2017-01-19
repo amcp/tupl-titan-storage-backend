@@ -12,7 +12,7 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package jp.classmethod.titan.diskstorage.tupl;
+package jp.classmethod.janusgraph.diskstorage.tupl;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,26 +32,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
-import com.thinkaurelius.titan.diskstorage.BackendException;
-import com.thinkaurelius.titan.diskstorage.BaseTransactionConfig;
-import com.thinkaurelius.titan.diskstorage.PermanentBackendException;
-import com.thinkaurelius.titan.diskstorage.StaticBuffer;
-import com.thinkaurelius.titan.diskstorage.StoreMetaData.Container;
-import com.thinkaurelius.titan.diskstorage.common.AbstractStoreManager;
-import com.thinkaurelius.titan.diskstorage.configuration.ConfigNamespace;
-import com.thinkaurelius.titan.diskstorage.configuration.ConfigOption;
-import com.thinkaurelius.titan.diskstorage.configuration.Configuration;
-import com.thinkaurelius.titan.diskstorage.configuration.MergedConfiguration;
-import com.thinkaurelius.titan.diskstorage.configuration.ModifiableConfiguration;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.KeyRange;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.StoreFeatures;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.StoreTransaction;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.keyvalue.KVMutation;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.keyvalue.KeyValueEntry;
-import com.thinkaurelius.titan.diskstorage.keycolumnvalue.keyvalue.OrderedKeyValueStoreManager;
-import com.thinkaurelius.titan.diskstorage.util.DirectoryUtil;
-import com.thinkaurelius.titan.diskstorage.util.time.TimestampProviders;
-import com.thinkaurelius.titan.graphdb.configuration.GraphDatabaseConfiguration;
+import org.janusgraph.diskstorage.BackendException;
+import org.janusgraph.diskstorage.BaseTransactionConfig;
+import org.janusgraph.diskstorage.PermanentBackendException;
+import org.janusgraph.diskstorage.StaticBuffer;
+import org.janusgraph.diskstorage.StoreMetaData.Container;
+import org.janusgraph.diskstorage.common.AbstractStoreManager;
+import org.janusgraph.diskstorage.configuration.ConfigNamespace;
+import org.janusgraph.diskstorage.configuration.ConfigOption;
+import org.janusgraph.diskstorage.configuration.Configuration;
+import org.janusgraph.diskstorage.configuration.MergedConfiguration;
+import org.janusgraph.diskstorage.configuration.ModifiableConfiguration;
+import org.janusgraph.diskstorage.keycolumnvalue.KeyRange;
+import org.janusgraph.diskstorage.keycolumnvalue.StoreFeatures;
+import org.janusgraph.diskstorage.keycolumnvalue.StoreTransaction;
+import org.janusgraph.diskstorage.keycolumnvalue.keyvalue.KVMutation;
+import org.janusgraph.diskstorage.keycolumnvalue.keyvalue.KeyValueEntry;
+import org.janusgraph.diskstorage.keycolumnvalue.keyvalue.OrderedKeyValueStoreManager;
+import org.janusgraph.diskstorage.util.DirectoryUtil;
+import org.janusgraph.diskstorage.util.time.TimestampProviders;
+import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
 
 /**
  * The Titan manager for the Classmethod Storage Backend for Titan. Tracks implemented

@@ -19,27 +19,23 @@
 
 BEGIN adaptation of:
 https://github.com/awslabs/dynamodb-titan-storage-backend/blob/1.0.0/pom.xml#L2
- -->
+-->
     <modelVersion>4.0.0</modelVersion>
-    <groupId>jp.classmethod</groupId>
-    <artifactId>tupl-titan100-storage-backend</artifactId>
-    <version>1.0.1</version>
+    <groupId>eu.amcp</groupId>
+    <artifactId>tupl-janusgraph-storage-backend</artifactId>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
-    <name>Classmethod Tupl Storage Backend for Titan</name>
-    <url>https://github.com/classmethod-aws/tupl-titan-storage-backend</url>
-    <description>The Classmethod Tupl Storage Backend for Titan: Distributed Graph Database allows Titan graphs to use Tupl as a storage backend.</description>
+    <name>Tupl Storage Backend for Janus Graph</name>
+    <url>https://github.com/amcp/tupl-titan-storage-backend</url>
+    <description>The Tupl Storage Backend for Janus Graph: Distributed Graph Database allows Janus Graphs to use Tupl as a storage backend.</description>
     <scm>
-        <connection>scm:git:git@github.com:classmethod/tupl-titan-storage-backend.git</connection>
-        <developerConnection>scm:git:git@github.com:classmethod/tupl-titan-storage-backend.git</developerConnection>
-        <url>git@github.com:classmethod/tupl-titan-storage-backend.git</url>
-        <tag>titan1.0.0-${project.version}</tag>
+        <connection>scm:git:git@github.com:amcp/tupl-titan-storage-backend.git</connection>
+        <developerConnection>scm:git:git@github.com:amcp/tupl-titan-storage-backend.git</developerConnection>
+        <url>git@github.com:amcp/tupl-titan-storage-backend.git</url>
+        <tag>janusgraph1.0.0-${project.version}</tag>
     </scm>
-    <organization>
-        <name>Classmethod, Inc.</name>
-        <url>http://classmethod.jp</url>
-    </organization>
     <issueManagement>
-        <url>https://github.com/classmethod/tupl-titan-storage-backend/issues</url>
+        <url>https://github.com/amcp/tupl-titan-storage-backend/issues</url>
     </issueManagement>
     <properties>
         <default.test.jvm.opts>-Xms256m -Xmx1280m
@@ -48,8 +44,8 @@ https://github.com/awslabs/dynamodb-titan-storage-backend/blob/1.0.0/pom.xml#L2
             -XX:+HeapDumpOnOutOfMemoryError</mem.jvm.opts>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jdk.version>1.8</jdk.version>
-        <titan.version>1.0.0</titan.version>
-        <tinkerpop.version>3.0.1-incubating</tinkerpop.version>
+        <janusgraph.version>0.1.0-SNAPSHOT</janusgraph.version>
+        <tinkerpop.version>3.1.1-incubating</tinkerpop.version>
         <tupl.version>v1.3.0</tupl.version>
         <dependency.plugin.version>2.10</dependency.plugin.version>
         <maven.assembly.plugin.version>2.5.5</maven.assembly.plugin.version>
@@ -65,14 +61,12 @@ https://github.com/awslabs/dynamodb-titan-storage-backend/blob/1.0.0/pom.xml#L2
         <opencsv.version>2.4</opencsv.version>
         <commons.logging.version>1.1.1</commons.logging.version>
         <hadoop.version>2.2.0</hadoop.version>
-        <test.excluded.groups>com.thinkaurelius.titan.testcategory.MemoryTests,com.thinkaurelius.titan.testcategory.PerformanceTests,com.thinkaurelius.titan.testcategory.BrittleTests,com.thinkaurelius.titan.testcategory.UnorderedKeyStoreTests,com.thinkaurelius.titan.testcategory.SerialTests</test.excluded.groups>
+        <test.excluded.groups>org.janusgraph.testcategory.MemoryTests,org.janusgraph.testcategory.PerformanceTests,org.janusgraph.testcategory.BrittleTests,org.janusgraph.testcategory.UnorderedKeyStoreTests,org.janusgraph.testcategory.SerialTests</test.excluded.groups>
     </properties>
     <developers>
         <developer>
             <name>Alexander Patrikalakis</name>
             <email>amcp@me.com</email>
-            <organization>Classmethod, Inc.</organization>
-            <organizationUrl>classmethod.jp</organizationUrl>
             <url>https://www.linkedin.com/in/amcpatrix/en</url>
         </developer>
     </developers>
@@ -91,20 +85,20 @@ https://github.com/awslabs/dynamodb-titan-storage-backend/blob/1.0.0/pom.xml#L2
             <version>${tupl.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.thinkaurelius.titan</groupId>
-            <artifactId>titan-core</artifactId>
-            <version>${titan.version}</version>
+            <groupId>org.janusgraph</groupId>
+            <artifactId>janusgraph-core</artifactId>
+            <version>${janusgraph.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.thinkaurelius.titan</groupId>
-            <artifactId>titan-test</artifactId>
-            <version>${titan.version}</version>
+            <groupId>org.janusgraph</groupId>
+            <artifactId>janusgraph-test</artifactId>
+            <version>${janusgraph.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.thinkaurelius.titan</groupId>
-            <artifactId>titan-es</artifactId>
-            <version>${titan.version}</version>
+            <groupId>org.janusgraph</groupId>
+            <artifactId>janusgraph-es</artifactId>
+            <version>${janusgraph.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -286,7 +280,7 @@ https://github.com/awslabs/dynamodb-titan-storage-backend/blob/1.0.0/pom.xml#L2
                                     <executable>java</executable>
                                     <arguments>
                                         <argument>-cp</argument>
-                                        <argument>${basedir}/target/dependencies/*${path.separator}${basedir}/target/tupl-titan100-storage-backend-${project.version}.jar</argument>
+                                        <argument>${basedir}/target/dependencies/*${path.separator}${basedir}/target/tupl-janusgraph-storage-backend-${project.version}.jar</argument>
                                         <argument>org.apache.tinkerpop.gremlin.console.Console</argument>
                                     </arguments>
                                 </configuration>

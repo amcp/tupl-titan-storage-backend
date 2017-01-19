@@ -18,18 +18,18 @@
 Titan + Tupl = Embedded Graph Database - Storage Management
 
 ## Features
-The following is a list of features of the Classmethod Tupl Storage Backend for Titan.
+The following is a list of features of the Tupl Storage Backend for Janus Graph.
 * AWS managed authentication and authorization.
 * Configurable storage directory allow multiple graphs to be stored in a single
 host in the same region.
 * Integrated with Titan metrics.
-* Titan 1.0.0 and Tinkerpop 3.0.1-incubating compatibility.
+* Janus Graph 0.1.0-SNAPSHOT and Tinkerpop 3.1.1-incubating compatibility.
 * All the store features titan-berkeleyje but with improved performance of Tupl
 across the board.
 * Permissive Apache 2.0 license both for this Storage Backend and Tupl.
 
 ## Getting Started
-This example populates a Titan graph database backed by Tupl using the
+This example populates a Janus graph database backed by Tupl using the
 [Marvel Universe Social Graph](https://aws.amazon.com/datasets/5621954952932508).
 The graph has a vertex per comic book character with an edge to each of the
 comic books in which they appeared.

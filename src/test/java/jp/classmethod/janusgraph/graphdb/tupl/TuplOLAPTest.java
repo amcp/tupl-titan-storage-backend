@@ -12,20 +12,19 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package jp.classmethod.titan.graphdb.tupl;
+package jp.classmethod.janusgraph.graphdb.tupl;
 
-import com.thinkaurelius.titan.diskstorage.configuration.WriteConfiguration;
-import com.thinkaurelius.titan.graphdb.TitanGraphPerformanceMemoryTest;
+import org.janusgraph.diskstorage.configuration.WriteConfiguration;
+import org.janusgraph.olap.OLAPTest;
 
-import jp.classmethod.titan.TuplStorageSetup;
+import jp.classmethod.janusgraph.TuplStorageSetup;
 
 /**
- * Performance and memory leak tests. Take a long time.
+ * 
  * @author Alexander Patrikalakis
  *
  */
-public class TuplGraphPerformanceMemoryTest extends TitanGraphPerformanceMemoryTest {
-
+public class TuplOLAPTest extends OLAPTest {
     @Override
     public WriteConfiguration getConfiguration() {
         return TuplStorageSetup.getTuplStorageWriteConfiguration();
