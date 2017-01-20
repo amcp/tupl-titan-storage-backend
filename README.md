@@ -245,7 +245,7 @@ All of the following parameters are in the `storage.tupl.checkpoint` (`s.t.c`) n
     sudo yum install -y apache-maven git java-1.8.0-openjdk-devel
     sudo alternatives --set java /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java
     sudo alternatives --set javac /usr/lib/jvm/java-1.8.0-openjdk.x86_64/bin/javac
-    git clone https://github.com/classmethod/tupl-titan-storage-backend.git
+    git clone https://github.com/amcp/tupl-titan-storage-backend.git
     sudo mkdir -p /usr/local/packages/tupl-titan100-storage-backend-1.0.0-hadoop1/data
     sudo chown -r ec2-user:ec2-user /usr/local/packages/tupl-titan100-storage-backend-1.0.0-hadoop1/data
     ```
