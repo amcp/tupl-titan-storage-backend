@@ -87,7 +87,10 @@ public class TuplStoreManager extends AbstractStoreManager implements OrderedKey
             ConfigOption.Type.MASKABLE, Boolean.FALSE);
     public static final ConfigOption<Long> TUPL_MIN_CACHE_SIZE = new ConfigOption<Long>(TUPL_NS,
             "min-cache-size", "The tupl minimum cache size (bytes). Must be at least 5 pages long.",
-            ConfigOption.Type.MASKABLE, Long.valueOf(100_000_000));
+            ConfigOption.Type.MASKABLE, Long.valueOf(100_000));
+    public static final ConfigOption<Long> TUPL_MAX_CACHE_SIZE = new ConfigOption<Long>(TUPL_NS,
+            "max-cache-size", "The tupl maximum cache size (bytes). Must be greater than the min cache size.",
+            ConfigOption.Type.MASKABLE, Long.valueOf(1_000_000_000));
     public static final ConfigOption<Long> TUPL_SECONDARY_CACHE_SIZE = new ConfigOption<Long>(TUPL_NS,
             "secondary-cache-size", "The tupl secondary cache size (bytes). Off by default.",
             ConfigOption.Type.MASKABLE, Long.valueOf(0));
@@ -202,9 +205,6 @@ public class TuplStoreManager extends AbstractStoreManager implements OrderedKey
     public TuplStoreManager(Configuration storageConfig) throws BackendException {
         //sets transactional, batchLoading, directory
         super(storageConfig);
-        //begin adaptation of LocalStoreManager.java
-
-        //end adaptation of LocalStoreManager.java
         prefix = storageConfig.has(TUPL_PREFIX) ? storageConfig.get(TUPL_PREFIX) : null;
         final boolean persistent = null != prefix;
         if(persistent) {
@@ -223,6 +223,7 @@ public class TuplStoreManager extends AbstractStoreManager implements OrderedKey
 
         final boolean mapDataFiles = storageConfig.get(TUPL_MAP_DATA_FILES);
         final long minCacheSize = storageConfig.get(TUPL_MIN_CACHE_SIZE);
+        final long maxCacheSize = storageConfig.get(TUPL_MAX_CACHE_SIZE);
         final long secondaryCacheSize = storageConfig.get(TUPL_SECONDARY_CACHE_SIZE);
         final DurabilityMode durabilityMode =
                 DurabilityMode.valueOf(storageConfig.get(TUPL_DURABILITY_MODE));
@@ -241,6 +242,7 @@ public class TuplStoreManager extends AbstractStoreManager implements OrderedKey
         config = new DatabaseConfig().baseFilePath(persistent ? prefixFile.getAbsolutePath() : null)
                                      .mapDataFiles(mapDataFiles)
                                      .minCacheSize(minCacheSize)
+                                     .maxCacheSize(maxCacheSize)
                                      .secondaryCacheSize(secondaryCacheSize)
                                      .durabilityMode(durabilityMode)
                                      .lockUpgradeRule(lockUpgradeRule)

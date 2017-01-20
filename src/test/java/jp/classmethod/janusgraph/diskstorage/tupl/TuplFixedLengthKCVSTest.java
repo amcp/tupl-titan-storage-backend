@@ -16,7 +16,11 @@
 package jp.classmethod.janusgraph.diskstorage.tupl;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
+import com.google.common.base.Stopwatch;
+import org.janusgraph.diskstorage.keycolumnvalue.StoreManager;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -43,10 +47,55 @@ public class TuplFixedLengthKCVSTest extends KeyColumnValueStoreTest {
 
     }
 
+    @Before
+    @Override
+    public void setUp() throws Exception {
+        Stopwatch watch = Stopwatch.createStarted();
+        StoreManager m = openStorageManager();
+        System.out.println("Time to open store manager: " + watch.elapsed(TimeUnit.MILLISECONDS));
+        watch.reset();
+        watch.start();
+        m.clearStorage();
+        System.out.println("Time to clear storage: " + watch.elapsed(TimeUnit.MILLISECONDS));
+        watch.reset();
+        watch.start();
+        m.close();
+        System.out.println("Time to close store manager: " + watch.elapsed(TimeUnit.MILLISECONDS));
+        watch.reset();
+        watch.start();
+        open();
+        System.out.println("Time to open: " + watch.elapsed(TimeUnit.MILLISECONDS));
+        watch.stop();
+    }
+
     // TODO broken
     @Test @Override
     public void testConcurrentGetSliceAndMutate() throws BackendException, ExecutionException, InterruptedException {
 
+    }
+
+    @Test
+    public void storeAndRetrieveWithClosing() throws BackendException {
+        Stopwatch watch = Stopwatch.createStarted();
+        String[][] values = generateValues();
+        System.out.println("Time to generate values: " + watch.elapsed(TimeUnit.MILLISECONDS));
+        watch.reset();
+        watch.start();
+        loadValues(values);
+        System.out.println("Time to load values: " + watch.elapsed(TimeUnit.MILLISECONDS));
+        watch.reset();
+        watch.start();
+        clopen();
+        System.out.println("Time to closeopen: " + watch.elapsed(TimeUnit.MILLISECONDS));
+        watch.reset();
+        watch.start();
+        checkValueExistence(values);
+        System.out.println("Time to check value existence: " + watch.elapsed(TimeUnit.MILLISECONDS));
+        watch.reset();
+        watch.start();
+        checkValues(values);
+        System.out.println("Time to check value existence: " + watch.elapsed(TimeUnit.MILLISECONDS));
+        watch.stop();
     }
 }
 // END adaptation of:

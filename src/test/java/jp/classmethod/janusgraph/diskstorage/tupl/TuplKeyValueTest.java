@@ -20,7 +20,6 @@ import org.janusgraph.diskstorage.KeyValueStoreTest;
 import org.janusgraph.diskstorage.keycolumnvalue.keyvalue.OrderedKeyValueStoreManager;
 
 import jp.classmethod.janusgraph.TuplStorageSetup;
-import jp.classmethod.janusgraph.diskstorage.tupl.TuplStoreManager;
 
 /**
  * Tests for the Tupl KV Store

@@ -54,20 +54,22 @@ import org.janusgraph.graphdb.transaction.StandardJanusGraphTx;
  *
  */
 public class TuplStorageSetup extends StorageSetup {
-    public static final String SIMILAR = "similar";
-    public static final String NODE_COMMUNITY = "nodeCommunity";
-    public static final String COMMUNITY = "community";
     public static final String NODE_ID = "nodeId";
     public static final String NODE_LABEL = "node";
 
 //BEGIN adaptation of:
 // https://github.com/thinkaurelius/titan/blob/1.0.0/titan-berkeleyje/src/test/java/com/thinkaurelius/titan/BerkeleyStorageSetup.java#L8
-    public static Configuration getTuplGraphBaseConfiguration() {
+    static Configuration getTuplGraphBaseConfiguration() {
         BaseConfiguration config = new BaseConfiguration();
         Configuration storage = config.subset("storage");
         storage.addProperty(GraphDatabaseConfiguration.STORAGE_DIRECTORY.getName(), getHomeDir(null));
         storage.addProperty(GraphDatabaseConfiguration.STORAGE_BACKEND.getName(),
                 "jp.classmethod.titan.diskstorage.tupl.TuplStoreManager");
+        Configuration tupl = storage.subset("tupl");
+        tupl.addProperty(TuplStoreManager.TUPL_PREFIX.getName(), "tupl");
+        tupl.addProperty(TuplStoreManager.TUPL_MIN_CACHE_SIZE.getName(),    "1048576"); //1MB
+        tupl.addProperty(TuplStoreManager.TUPL_MAX_CACHE_SIZE.getName(), "1073741824"); //1GB
+        tupl.addProperty(TuplStoreManager.TUPL_DURABILITY_MODE.getName(), "NO_FLUSH");
         return config;
     }
     public static WriteConfiguration getTuplStorageWriteConfiguration() {
