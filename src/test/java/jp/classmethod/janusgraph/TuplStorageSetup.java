@@ -19,10 +19,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.MapConfiguration;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.T;
@@ -66,7 +68,7 @@ public class TuplStorageSetup extends StorageSetup {
         storage.addProperty(GraphDatabaseConfiguration.STORAGE_BACKEND.getName(),
                 "jp.classmethod.janusgraph.diskstorage.tupl.TuplStoreManager");
         Configuration tupl = storage.subset("tupl");
-        tupl.addProperty(TuplStoreManager.TUPL_PREFIX.getName(), "tupl");
+        tupl.addProperty(TuplStoreManager.TUPL_PREFIX.getName(), UUID.randomUUID().toString());
         tupl.addProperty(TuplStoreManager.TUPL_MIN_CACHE_SIZE.getName(),    "1048576"); //1MB
         tupl.addProperty(TuplStoreManager.TUPL_MAX_CACHE_SIZE.getName(), "1073741824"); //1GB
         tupl.addProperty(TuplStoreManager.TUPL_DURABILITY_MODE.getName(), "NO_FLUSH");
