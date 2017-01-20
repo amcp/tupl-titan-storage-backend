@@ -64,7 +64,7 @@ public class TuplStorageSetup extends StorageSetup {
         Configuration storage = config.subset("storage");
         storage.addProperty(GraphDatabaseConfiguration.STORAGE_DIRECTORY.getName(), getHomeDir(null));
         storage.addProperty(GraphDatabaseConfiguration.STORAGE_BACKEND.getName(),
-                "jp.classmethod.titan.diskstorage.tupl.TuplStoreManager");
+                "jp.classmethod.janusgraph.diskstorage.tupl.TuplStoreManager");
         Configuration tupl = storage.subset("tupl");
         tupl.addProperty(TuplStoreManager.TUPL_PREFIX.getName(), "tupl");
         tupl.addProperty(TuplStoreManager.TUPL_MIN_CACHE_SIZE.getName(),    "1048576"); //1MB
