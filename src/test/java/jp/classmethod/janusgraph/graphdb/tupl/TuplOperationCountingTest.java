@@ -18,6 +18,8 @@ import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.janusgraph.graphdb.JanusGraphOperationCountingTest;
 
 import jp.classmethod.janusgraph.TuplStorageSetup;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 
 /**
  * 
@@ -26,9 +28,13 @@ import jp.classmethod.janusgraph.TuplStorageSetup;
  */
 public class TuplOperationCountingTest extends JanusGraphOperationCountingTest {
 
+    @Rule
+    public TestName testName = new TestName();
+
     @Override
     public WriteConfiguration getBaseConfiguration() {
-        return TuplStorageSetup.getTuplStorageWriteConfiguration();
+        return TuplStorageSetup.getTuplStorageWriteConfiguration("TuplOperationCountingTest#"
+                + testName.getMethodName());
     }
 
     @Override

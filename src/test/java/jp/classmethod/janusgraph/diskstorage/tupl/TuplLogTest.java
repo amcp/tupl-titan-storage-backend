@@ -19,6 +19,8 @@ import org.janusgraph.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
 import org.janusgraph.diskstorage.log.KCVSLogTest;
 
 import jp.classmethod.janusgraph.TuplStorageSetup;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 
 /**
  * Log tests for the Tupl KV Store
@@ -26,9 +28,13 @@ import jp.classmethod.janusgraph.TuplStorageSetup;
  *
  */
 public class TuplLogTest extends KCVSLogTest {
+
+    @Rule
+    public TestName testName = new TestName();
+
     @Override
     public KeyColumnValueStoreManager openStorageManager() throws BackendException {
-        return TuplStorageSetup.getKCVStorageManager();
+        return TuplStorageSetup.getKCVStorageManager("TuplLogTest#" + testName.getMethodName());
     }
 
 }

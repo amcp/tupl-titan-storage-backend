@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.base.Stopwatch;
 import org.janusgraph.diskstorage.keycolumnvalue.StoreManager;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -32,6 +33,7 @@ import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.KeyColumnValueStoreTest;
 import org.janusgraph.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
 import org.janusgraph.diskstorage.keycolumnvalue.keyvalue.OrderedKeyValueStoreManagerAdapter;
+import org.junit.rules.TestName;
 
 /**
  * @author Alexander Patrikalakis
@@ -40,9 +42,15 @@ import org.janusgraph.diskstorage.keycolumnvalue.keyvalue.OrderedKeyValueStoreMa
 // BEGIN adaptation of:
 // https://github.com/thinkaurelius/titan/blob/1.0.0/titan-berkeleyje/src/test/java/com/thinkaurelius/titan/diskstorage/berkeleyje/BerkeleyFixedLengthKCVSTest.java#L14
 public class TuplFixedLengthKCVSTest extends KeyColumnValueStoreTest {
+
+    @Rule
+    public TestName testName = new TestName();
+
     @Override
     public KeyColumnValueStoreManager openStorageManager() throws BackendException {
-        final TuplStoreManager sm = new TuplStoreManager(TuplStorageSetup.getTuplStorageConfiguration());
+        final TuplStoreManager sm =
+                new TuplStoreManager(TuplStorageSetup.getTuplStorageConfiguration("TuplFixedLengthKCVSTest#"
+                        + testName.getMethodName()));
         return new OrderedKeyValueStoreManagerAdapter(sm, ImmutableMap.of(storeName, 8));
 
     }

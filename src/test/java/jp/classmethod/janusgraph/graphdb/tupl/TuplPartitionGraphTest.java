@@ -18,6 +18,8 @@ import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.janusgraph.graphdb.JanusGraphPartitionGraphTest;
 
 import jp.classmethod.janusgraph.TuplStorageSetup;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 
 /**
  * 
@@ -25,9 +27,14 @@ import jp.classmethod.janusgraph.TuplStorageSetup;
  *
  */
 public class TuplPartitionGraphTest extends JanusGraphPartitionGraphTest {
+
+    @Rule
+    public TestName testName = new TestName();
+
     @Override
     public WriteConfiguration getBaseConfiguration() {
-        return TuplStorageSetup.getTuplStorageWriteConfiguration();
+        return TuplStorageSetup.getTuplStorageWriteConfiguration("TuplPartitionGraphTest#"
+                + testName.getMethodName());
     }
 
 }

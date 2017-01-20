@@ -61,32 +61,32 @@ public class TuplStorageSetup extends StorageSetup {
 
 //BEGIN adaptation of:
 // https://github.com/thinkaurelius/titan/blob/1.0.0/titan-berkeleyje/src/test/java/com/thinkaurelius/titan/BerkeleyStorageSetup.java#L8
-    static Configuration getTuplGraphBaseConfiguration() {
+    private static Configuration getTuplGraphBaseConfiguration(String name) {
         BaseConfiguration config = new BaseConfiguration();
         Configuration storage = config.subset("storage");
         storage.addProperty(GraphDatabaseConfiguration.STORAGE_DIRECTORY.getName(), getHomeDir(null));
         storage.addProperty(GraphDatabaseConfiguration.STORAGE_BACKEND.getName(),
                 "jp.classmethod.janusgraph.diskstorage.tupl.TuplStoreManager");
         Configuration tupl = storage.subset("tupl");
-        tupl.addProperty(TuplStoreManager.TUPL_PREFIX.getName(), UUID.randomUUID().toString());
+        tupl.addProperty(TuplStoreManager.TUPL_PREFIX.getName(), name);
         tupl.addProperty(TuplStoreManager.TUPL_MIN_CACHE_SIZE.getName(),    "1048576"); //1MB
         tupl.addProperty(TuplStoreManager.TUPL_MAX_CACHE_SIZE.getName(), "1073741824"); //1GB
         tupl.addProperty(TuplStoreManager.TUPL_DURABILITY_MODE.getName(), "NO_FLUSH");
         return config;
     }
-    public static WriteConfiguration getTuplStorageWriteConfiguration() {
-        return new CommonsConfiguration(getTuplGraphBaseConfiguration());
+    public static WriteConfiguration getTuplStorageWriteConfiguration(String name) {
+        return new CommonsConfiguration(getTuplGraphBaseConfiguration(name));
     }
-    public static BasicConfiguration getTuplStorageConfiguration() {
-        final WriteConfiguration wc = getTuplStorageWriteConfiguration();
+    public static BasicConfiguration getTuplStorageConfiguration(String name) {
+        final WriteConfiguration wc = getTuplStorageWriteConfiguration(name);
         final BasicConfiguration config = new BasicConfiguration(GraphDatabaseConfiguration.ROOT_NS, wc,
                 BasicConfiguration.Restriction.NONE);
         return config;
     }
 //END adaptation of:
 // https://github.com/thinkaurelius/titan/blob/1.0.0/titan-berkeleyje/src/test/java/com/thinkaurelius/titan/BerkeleyStorageSetup.java#L28
-    public static KeyColumnValueStoreManager getKCVStorageManager() throws BackendException {
-        final TuplStoreManager sm = new TuplStoreManager(getTuplStorageConfiguration());
+    public static KeyColumnValueStoreManager getKCVStorageManager(String name) throws BackendException {
+        final TuplStoreManager sm = new TuplStoreManager(getTuplStorageConfiguration(name));
         return new OrderedKeyValueStoreManagerAdapter(sm);
     }
 

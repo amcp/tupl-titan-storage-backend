@@ -18,6 +18,8 @@ import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.janusgraph.olap.OLAPTest;
 
 import jp.classmethod.janusgraph.TuplStorageSetup;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 
 /**
  * 
@@ -25,9 +27,13 @@ import jp.classmethod.janusgraph.TuplStorageSetup;
  *
  */
 public class TuplOLAPTest extends OLAPTest {
+
+    @Rule
+    public TestName testName = new TestName();
+
     @Override
     public WriteConfiguration getConfiguration() {
-        return TuplStorageSetup.getTuplStorageWriteConfiguration();
+        return TuplStorageSetup.getTuplStorageWriteConfiguration("TuplOLAPTest#" + testName.getMethodName() );
     }
 
 }

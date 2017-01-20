@@ -17,6 +17,7 @@ package jp.classmethod.janusgraph.diskstorage.tupl;
 
 import java.util.concurrent.ExecutionException;
 
+import org.junit.Rule;
 import org.junit.Test;
 
 import jp.classmethod.janusgraph.TuplStorageSetup;
@@ -24,6 +25,7 @@ import jp.classmethod.janusgraph.TuplStorageSetup;
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.KeyColumnValueStoreTest;
 import org.janusgraph.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
+import org.junit.rules.TestName;
 
 /**
  * @author Alexander Patrikalakis
@@ -32,9 +34,13 @@ import org.janusgraph.diskstorage.keycolumnvalue.KeyColumnValueStoreManager;
 // BEGIN adaptation of:
 // https://github.com/thinkaurelius/titan/blob/1.0.0/titan-berkeleyje/src/test/java/com/thinkaurelius/titan/diskstorage/berkeleyje/BerkeleyVariableLengthKCVSTest.java#L13
 public class TuplVariableLengthKCVSTest extends KeyColumnValueStoreTest {
+
+    @Rule
+    public TestName testName = new TestName();
+
     @Override
     public KeyColumnValueStoreManager openStorageManager() throws BackendException {
-        return TuplStorageSetup.getKCVStorageManager();
+        return TuplStorageSetup.getKCVStorageManager("TuplVariableLengthKCVSTest#" + testName.getMethodName());
     }
 
     // TODO broken

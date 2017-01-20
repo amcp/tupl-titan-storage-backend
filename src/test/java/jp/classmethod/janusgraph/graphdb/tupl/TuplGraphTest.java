@@ -18,6 +18,8 @@ import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.janusgraph.graphdb.JanusGraphTest;
 
 import jp.classmethod.janusgraph.TuplStorageSetup;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 
 /**
  * 
@@ -26,6 +28,9 @@ import jp.classmethod.janusgraph.TuplStorageSetup;
  */
 public class TuplGraphTest extends JanusGraphTest {
 
+    @Rule
+    public TestName testName = new TestName();
+
     @Override
     protected boolean isLockingOptimistic() {
         return false;
@@ -33,7 +38,7 @@ public class TuplGraphTest extends JanusGraphTest {
 
     @Override
     public WriteConfiguration getConfiguration() {
-        return TuplStorageSetup.getTuplStorageWriteConfiguration();
+        return TuplStorageSetup.getTuplStorageWriteConfiguration("TuplGraphTest#" + testName.getMethodName());
     }
 
 }

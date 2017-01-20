@@ -20,6 +20,8 @@ import org.janusgraph.diskstorage.KeyValueStoreTest;
 import org.janusgraph.diskstorage.keycolumnvalue.keyvalue.OrderedKeyValueStoreManager;
 
 import jp.classmethod.janusgraph.TuplStorageSetup;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 
 /**
  * Tests for the Tupl KV Store
@@ -27,8 +29,13 @@ import jp.classmethod.janusgraph.TuplStorageSetup;
  *
  */
 public class TuplKeyValueTest extends KeyValueStoreTest {
+
+    @Rule
+    public TestName testName = new TestName();
+
     @Override
     public OrderedKeyValueStoreManager openStorageManager() throws BackendException {
-        return new TuplStoreManager(TuplStorageSetup.getTuplStorageConfiguration());
+        return new TuplStoreManager(TuplStorageSetup.getTuplStorageConfiguration("TuplKeyValueTest#"
+                + testName.getMethodName()));
     }
 }

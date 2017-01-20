@@ -18,6 +18,8 @@ import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 import org.janusgraph.graphdb.JanusGraphPerformanceMemoryTest;
 
 import jp.classmethod.janusgraph.TuplStorageSetup;
+import org.junit.Rule;
+import org.junit.rules.TestName;
 
 /**
  * Performance and memory leak tests. Take a long time.
@@ -26,9 +28,13 @@ import jp.classmethod.janusgraph.TuplStorageSetup;
  */
 public class TuplGraphPerformanceMemoryTest extends JanusGraphPerformanceMemoryTest {
 
+    @Rule
+    public TestName testName = new TestName();
+
     @Override
     public WriteConfiguration getConfiguration() {
-        return TuplStorageSetup.getTuplStorageWriteConfiguration();
+        return TuplStorageSetup.getTuplStorageWriteConfiguration("TuplGraphPerformanceMemoryTest#"
+                + testName.getMethodName());
     }
 
 }
