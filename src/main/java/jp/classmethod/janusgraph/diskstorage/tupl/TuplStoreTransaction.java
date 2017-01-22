@@ -15,10 +15,12 @@
 package jp.classmethod.janusgraph.diskstorage.tupl;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.cojen.tupl.Database;
-import org.cojen.tupl.DurabilityMode;
-import org.cojen.tupl.Transaction;
+import javafx.util.Pair;
+import org.cojen.tupl.*;
+import org.janusgraph.diskstorage.locking.PermanentLockingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +28,6 @@ import com.google.common.base.Preconditions;
 import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.BaseTransactionConfig;
 import org.janusgraph.diskstorage.PermanentBackendException;
-import org.janusgraph.diskstorage.StaticBuffer;
 import org.janusgraph.diskstorage.common.AbstractStoreTransaction;
 import org.janusgraph.diskstorage.keycolumnvalue.StoreTransaction;
 
@@ -37,48 +38,44 @@ import org.janusgraph.diskstorage.keycolumnvalue.StoreTransaction;
  */
 public class TuplStoreTransaction extends AbstractStoreTransaction {
     private static final Logger log = LoggerFactory.getLogger(TuplStoreTransaction.class);
-    public static final String HEX_PREFIX = "0x";
+    private static final String HEX_PREFIX = "0x";
     private final String id;
     private final Transaction txn;
     private final Database database;
-    public TuplStoreTransaction(BaseTransactionConfig config, Transaction txn, Database database) {
+    private final Set<Pair<Long, byte[]>> keysInTransaction;
+    TuplStoreTransaction(BaseTransactionConfig config, Transaction txn, Database database) {
         super(config);
         this.txn = txn;
         this.database = database;
+        this.keysInTransaction = new HashSet<>();
         id = HEX_PREFIX + Long.toHexString(System.nanoTime()); //TODO(amcp) is this necessary?
     }
 
-    public static TuplStoreTransaction getTx(StoreTransaction txh) {
+    static TuplStoreTransaction getTx(StoreTransaction txh) {
         Preconditions.checkArgument(txh != null);
         Preconditions.checkArgument(txh instanceof TuplStoreTransaction,
                         "Unexpected transaction type %s", txh.getClass().getName());
         return (TuplStoreTransaction) txh;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public Transaction getTuplTxn() {
+    Transaction getTuplTxn() {
         return txn;
     }
 
-    public boolean contains(StaticBuffer key) {
-        return false; //TODO tupl supports conditional writes, should I use them?
+    boolean contains(String name, long indexId, byte[] key) {
+        return LockResult.UNOWNED != txn.lockCheck(indexId, key);
     }
 
-    public void put(StaticBuffer key, StaticBuffer expectedValue) {
+    void put(String name, long indexId, byte[] key, byte[] expectedValue) throws PermanentLockingException {
         //TODO tupl supports conditional writes, should I use them?
     }
-
     @Override
     public void commit() throws BackendException {
         log.trace("commit txn={}, id={}", txn, id);
-
         try {
             txn.commit();
             txn.exit();
-            if(DurabilityMode.NO_REDO == txn.durabilityMode()) { //TODO should I always call checkpoint?
+            if (DurabilityMode.NO_REDO == txn.durabilityMode()) { //TODO should I always call checkpoint?
                 database.checkpoint();
             }
         } catch (IOException e) {
@@ -94,5 +91,9 @@ public class TuplStoreTransaction extends AbstractStoreTransaction {
         } catch (IOException e) {
             throw new PermanentBackendException("unable to commit tx " + id, e);
         }
+    }
+
+    public String toString() {
+        return String.format("TuplStoreTransaction id=%s", id);
     }
 }

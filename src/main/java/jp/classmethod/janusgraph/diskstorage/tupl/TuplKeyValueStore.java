@@ -21,10 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.cojen.tupl.Cursor;
-import org.cojen.tupl.Index;
-import org.cojen.tupl.LockResult;
-import org.cojen.tupl.Transaction;
+import org.cojen.tupl.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,9 +79,8 @@ public class TuplKeyValueStore implements OrderedKeyValueStore {
     public void acquireLock(StaticBuffer key, StaticBuffer expectedValue, StoreTransaction txh)
             throws BackendException {
         final TuplStoreTransaction tx = TuplStoreTransaction.getTx(txh);
-        //TODO study DynamoDB implementation to see what else is needed here
-        if (!tx.contains(key)) {
-            tx.put(key, expectedValue);
+        if (!tx.contains(this.name, dbindex.getId(), getByteArray(key))) {
+            tx.put(this.name, dbindex.getId(), getByteArray(key), expectedValue == null ? null : getByteArray(expectedValue));
         }
     }
 
@@ -116,11 +112,11 @@ public class TuplKeyValueStore implements OrderedKeyValueStore {
         final StaticBuffer start = query.getStart();
         final StaticBuffer keyEnd = query.getEnd();
         final KeySelector selector = query.getKeySelector();
-        final List<KeyValueEntry> result = new ArrayList<KeyValueEntry>();
+        final List<KeyValueEntry> result = new ArrayList<>();
         final Transaction txn = tx.getTuplTxn();
-        
-        final Cursor cursor = dbindex.viewGe(getByteArray(start)).newCursor(txn);
+
         try {
+            final Cursor cursor = dbindex.viewGe(getByteArray(start)).newCursor(txn);
             LockResult status = cursor.first(); //TODO(amcp) determine if the status is necessary here?
             //Iterate until given condition is satisfied or end of records
             while (true) { //TODO(amcp) find a better solution
@@ -141,7 +137,6 @@ public class TuplKeyValueStore implements OrderedKeyValueStore {
                 status = cursor.next();
             }
             log.trace("db={}, op=getSlice, tx={}, resultcount={}", name, txh, result.size());
-
             return new RecordIterator<KeyValueEntry>() {
                 private final Iterator<KeyValueEntry> entries = result.iterator();
 
@@ -174,15 +169,11 @@ public class TuplKeyValueStore implements OrderedKeyValueStore {
         throw new UnsupportedOperationException();
     }
 
-    private static StaticBuffer getBuffer(byte[] entry) {
+    static StaticBuffer getBuffer(byte[] entry) {
         return entry == null ? null : StaticArrayBuffer.of(entry);
     }
     
-    private static byte[] getByteArray(StaticBuffer buffer) {
+    static byte[] getByteArray(StaticBuffer buffer) {
         return buffer.as(StaticBuffer.ARRAY_FACTORY);
-    }
-
-    public Index getIndex() {
-        return dbindex;
     }
 }

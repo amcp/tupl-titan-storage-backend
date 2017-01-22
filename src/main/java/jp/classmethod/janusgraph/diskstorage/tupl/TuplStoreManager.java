@@ -20,7 +20,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.cojen.tupl.Database;
 import org.cojen.tupl.DatabaseConfig;
 import org.cojen.tupl.DurabilityMode;
@@ -98,6 +100,12 @@ public class TuplStoreManager extends AbstractStoreManager implements OrderedKey
             "durability-mode",
             "Default transaction durability mode.",
             ConfigOption.Type.MASKABLE, DurabilityMode.SYNC.name());
+    /**
+     * REPEATABLE_READ not compatible
+     * UPGRADABLE_READ fails transactions too soon (on the concurrent modification, not the commit operation)
+     * this may be desirable depending on the situation.
+     *
+     */
     public static final ConfigOption<String> TUPL_LOCK_MODE = new ConfigOption<String>(TUPL_LOCK_NS,
             "mode",
             "Default lock mode. READ_UNCOMMITTED is needed to pass most Titan KV and KCV tests.",
@@ -237,7 +245,7 @@ public class TuplStoreManager extends AbstractStoreManager implements OrderedKey
         final long checkpointSizeThreshold = storageConfig.get(TUPL_CHECKPOINT_SIZE_THRESHOLD);
 
         features = new TuplStoreFeatures(transactional, persistent);
-        stores = new HashMap<String, TuplKeyValueStore>();
+        stores = new HashMap<>();
 
         config = new DatabaseConfig().baseFilePath(persistent ? prefixFile.getAbsolutePath() : null)
                                      .mapDataFiles(mapDataFiles)
@@ -350,29 +358,35 @@ public class TuplStoreManager extends AbstractStoreManager implements OrderedKey
         return this.openDatabase(name, null /*metaData*/);
     }
 
+    @VisibleForTesting
+    void mutateOne(Map.Entry<String, KVMutation> mapping, StoreTransaction txh) throws BackendException {
+        final String name = mapping.getKey();
+        final KVMutation changes = mapping.getValue();
+        final TuplKeyValueStore store = this.openDatabase(name);
+
+        log.debug("Mutating {}", name);
+
+        if (changes.hasAdditions()) {
+            for (KeyValueEntry entry : changes.getAdditions()) {
+                store.insert(entry.getKey(), entry.getValue(), txh);
+                log.trace("Insertion on {}: {}", name, entry);
+            }
+        }
+        if (changes.hasDeletions()) {
+            for (StaticBuffer del : changes.getDeletions()) {
+                store.delete(del, txh);
+                log.trace("Deletion on {}: {}", name, del);
+            }
+        }
+    }
+
     public void mutateMany(Map<String, KVMutation> mutations, StoreTransaction txh) throws BackendException {
-        for (Map.Entry<String,KVMutation> muts : mutations.entrySet()) {
-            final TuplKeyValueStore store = openDatabase(muts.getKey());
-            final KVMutation mut = muts.getValue();
-
-            if (!mut.hasAdditions() && !mut.hasDeletions()) {
-                log.debug("Empty mutation set for {}, doing nothing", muts.getKey());
-            } else {
-                log.debug("Mutating {}", muts.getKey());
-            }
-
-            if (mut.hasAdditions()) {
-                for (KeyValueEntry entry : mut.getAdditions()) {
-                    store.insert(entry.getKey(), entry.getValue(), txh);
-                    log.trace("Insertion on {}: {}", muts.getKey(), entry);
-                }
-            }
-            if (mut.hasDeletions()) {
-                for (StaticBuffer del : mut.getDeletions()) {
-                    store.delete(del, txh);
-                    log.trace("Deletion on {}: {}", muts.getKey(), del);
-                }
-            }
+        TuplStoreTransaction tx = TuplStoreTransaction.getTx(txh);
+        Map<String, KVMutation> storesWithChanges = mutations.entrySet().stream()
+                .filter(mut -> mut.getValue().hasAdditions() || mut.getValue().hasDeletions())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        for(Map.Entry<String, KVMutation> entry : storesWithChanges.entrySet()) {
+            this.mutateOne(entry, tx);
         }
     }
 
@@ -380,9 +394,5 @@ public class TuplStoreManager extends AbstractStoreManager implements OrderedKey
     public String getName() {
         return getClass().getSimpleName() + " : " +
                 (prefixFile ==  null ? "inmemory" : (prefixFile.toString() + "*"));
-    }
-
-    public String getPrefix() {
-        return prefix;
     }
 }

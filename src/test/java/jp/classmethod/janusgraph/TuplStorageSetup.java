@@ -29,6 +29,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.cojen.tupl.LockMode;
 import org.elasticsearch.common.collect.Iterables;
 import org.junit.Test;
 
@@ -69,9 +70,13 @@ public class TuplStorageSetup extends StorageSetup {
                 "jp.classmethod.janusgraph.diskstorage.tupl.TuplStoreManager");
         Configuration tupl = storage.subset("tupl");
         tupl.addProperty(TuplStoreManager.TUPL_PREFIX.getName(), name);
-        tupl.addProperty(TuplStoreManager.TUPL_MIN_CACHE_SIZE.getName(),    "1048576"); //1MB
-        tupl.addProperty(TuplStoreManager.TUPL_MAX_CACHE_SIZE.getName(), "1073741824"); //1GB
-        tupl.addProperty(TuplStoreManager.TUPL_DURABILITY_MODE.getName(), "NO_FLUSH");
+        tupl.addProperty(TuplStoreManager.TUPL_MIN_CACHE_SIZE.getName(),    "16777216"); //16MB
+        //8gb was not enough for testVertexCentricQuery
+        tupl.addProperty(TuplStoreManager.TUPL_MAX_CACHE_SIZE.getName(), "17179869184"); //16GB
+        Configuration lock = tupl.subset("lock");
+        //for testConsistencyEnforcement
+        //lock.addProperty(TuplStoreManager.TUPL_LOCK_MODE.getName(), LockMode.UPGRADABLE_READ.name());
+        lock.addProperty(TuplStoreManager.TUPL_LOCK_TIMEOUT.getName(), "0" /*ms*/);
         return config;
     }
     public static WriteConfiguration getTuplStorageWriteConfiguration(String name) {
