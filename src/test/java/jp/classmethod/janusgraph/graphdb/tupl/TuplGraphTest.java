@@ -59,7 +59,6 @@ public class TuplGraphTest extends JanusGraphTest {
     @Override
     @Test
     public void testConsistencyEnforcement() {
-        graph.close();
         PropertyKey uid = makeVertexIndexedUniqueKey("uid", Integer.class);
         PropertyKey name = makeKey("name", String.class);
         mgmt.setConsistency(uid, ConsistencyModifier.LOCK);
