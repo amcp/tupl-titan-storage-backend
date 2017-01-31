@@ -15,11 +15,12 @@
 package jp.classmethod.janusgraph.diskstorage.tupl;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
-import javafx.util.Pair;
+import com.google.common.annotations.VisibleForTesting;
 import org.cojen.tupl.*;
+import org.janusgraph.diskstorage.StaticBuffer;
 import org.janusgraph.diskstorage.locking.PermanentLockingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,13 +43,15 @@ public class TuplStoreTransaction extends AbstractStoreTransaction {
     private final String id;
     private final Transaction txn;
     private final Database database;
-    private final Set<Pair<Long, byte[]>> keysInTransaction;
+    private final Map<StaticBuffer, StaticBuffer> expectedValues;
+
     TuplStoreTransaction(BaseTransactionConfig config, Transaction txn, Database database) {
         super(config);
         this.txn = txn;
         this.database = database;
-        this.keysInTransaction = new HashSet<>();
-        id = HEX_PREFIX + Long.toHexString(System.nanoTime()); //TODO(amcp) is this necessary?
+        this.expectedValues = new HashMap<>();
+        id = HEX_PREFIX + Long.toHexString(System.nanoTime());
+        log.debug("begin id:{} config:{}", id, config);
     }
 
     static TuplStoreTransaction getTx(StoreTransaction txh) {
@@ -62,16 +65,25 @@ public class TuplStoreTransaction extends AbstractStoreTransaction {
         return txn;
     }
 
-    boolean contains(String name, long indexId, byte[] key) {
-        return LockResult.UNOWNED != txn.lockCheck(indexId, key);
+    @VisibleForTesting
+    void expectValue(String name, long indexId, StaticBuffer key, StaticBuffer expectedValue) throws PermanentLockingException {
+        log.trace("expectValue id:{} index:{} name:{} key:{} expected:{}", id, indexId, name, key, expectedValue);
+        if (expectedValues.containsKey(key)) {
+            return; //TODO is this correct?
+        }
+        expectedValues.put(key, expectedValue);
+
     }
 
-    void put(String name, long indexId, byte[] key, byte[] expectedValue) throws PermanentLockingException {
-        //TODO tupl supports conditional writes, should I use them?
+    @VisibleForTesting
+    StaticBuffer getExpectedValue(String name, long indexId, StaticBuffer key) {
+        log.trace("get expected value id:{} index:{} name:{} key:{}", id, indexId, name, key);
+        return expectedValues.get(key);
     }
+
     @Override
     public void commit() throws BackendException {
-        log.trace("commit txn={}, id={}", txn, id);
+        log.debug("commit txn={}, id={}", txn, id);
         try {
             txn.commit();
             txn.exit();
@@ -85,7 +97,8 @@ public class TuplStoreTransaction extends AbstractStoreTransaction {
 
     @Override
     public void rollback() throws BackendException {
-        log.trace("rollback txn={}, id={}", txn, id);
+        log.debug("rollback txn={}, id={}", txn, id);
+        expectedValues.clear();
         try {
             txn.reset();
         } catch (IOException e) {
@@ -95,5 +108,9 @@ public class TuplStoreTransaction extends AbstractStoreTransaction {
 
     public String toString() {
         return String.format("TuplStoreTransaction id=%s", id);
+    }
+
+    String getId() {
+        return id;
     }
 }

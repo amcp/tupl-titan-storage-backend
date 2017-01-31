@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.cojen.tupl.*;
+import org.janusgraph.diskstorage.locking.PermanentLockingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,21 +47,36 @@ public class TuplKeyValueStore implements OrderedKeyValueStore {
     private final String name;
     private final Index dbindex;
     private final TuplStoreManager manager;
-    public TuplKeyValueStore(String name, Index dbindex, TuplStoreManager mgr) {
+
+    /**
+     * Constructs a new KVStore for the Tupl backend
+     * @param name name of the kvstore (graphindex, tx_log etc)
+     * @param dbindex the underlying index
+     * @param mgr store manager that contains this store
+     */
+    TuplKeyValueStore(String name, Index dbindex, TuplStoreManager mgr) {
         this.name = name;
         this.dbindex = dbindex;
         this.manager = mgr;
     }
 
+    @Override
     public void delete(StaticBuffer key, StoreTransaction txh) throws BackendException {
         final TuplStoreTransaction tx = TuplStoreTransaction.getTx(txh);
         try {
-            dbindex.delete(tx.getTuplTxn(), getByteArray(key));
+            //store does not condition on existing value
+            StaticBuffer expectedValue = tx.getExpectedValue(name, dbindex.getId(), key);
+            if(expectedValue == null) {
+                dbindex.delete(tx.getTuplTxn(), getByteArray(key));
+            } else if(!dbindex.remove(tx.getTuplTxn(), getByteArray(key) /*key*/, getByteArray(expectedValue))) {
+                throw new PermanentLockingException(String.format("Remove: expected value did not match actual for key %s", key));
+            }
         } catch (IOException e) {
             throw new PermanentBackendException("unable to delete key " + key, e);
         }
     }
 
+    @Override
     public StaticBuffer get(StaticBuffer key, StoreTransaction txh) throws BackendException {
         final TuplStoreTransaction tx = TuplStoreTransaction.getTx(txh);
         final byte[] value;
@@ -72,16 +88,16 @@ public class TuplKeyValueStore implements OrderedKeyValueStore {
         return getBuffer(value);
     }
 
+    @Override
     public boolean containsKey(StaticBuffer key, StoreTransaction txh) throws BackendException {
         return get(key, txh) != null;
     }
 
+    @Override
     public void acquireLock(StaticBuffer key, StaticBuffer expectedValue, StoreTransaction txh)
             throws BackendException {
         final TuplStoreTransaction tx = TuplStoreTransaction.getTx(txh);
-        if (!tx.contains(this.name, dbindex.getId(), getByteArray(key))) {
-            tx.put(this.name, dbindex.getId(), getByteArray(key), expectedValue == null ? null : getByteArray(expectedValue));
-        }
+        tx.expectValue(this.name, dbindex.getId(), key, expectedValue);
     }
 
     public String getName() {
@@ -97,15 +113,28 @@ public class TuplKeyValueStore implements OrderedKeyValueStore {
         manager.unregisterStore(this);
     }
 
+    @Override
     public void insert(StaticBuffer key, StaticBuffer value, StoreTransaction txh) throws BackendException {
         final TuplStoreTransaction tx = TuplStoreTransaction.getTx(txh);
+        log.trace("insert id:{} index:{} name:{} key:{} value:{}", tx.getId(), dbindex.getId(), name, key, value);
         try {
-            dbindex.store(tx.getTuplTxn(), getByteArray(key), getByteArray(value));
+            //store does not condition on existing value
+            StaticBuffer expectedValue = tx.getExpectedValue(name, dbindex.getId(), key);
+            if(expectedValue == null) {
+                //blind insert
+                dbindex.insert(tx.getTuplTxn(), getByteArray(key), getByteArray(value));
+            } else if(!dbindex.update(tx.getTuplTxn(),
+                    getByteArray(key), //key
+                    getByteArray(expectedValue), //old expected value
+                    getByteArray(value))) { //new value
+                throw new PermanentLockingException(String.format("Expected value did not match actual for key:%s", key));
+            }
         } catch (IOException e) {
             throw new PermanentBackendException("unable to close store named "+ name, e);
         }
     }
 
+    @Override
     public RecordIterator<KeyValueEntry> getSlice(KVQuery query, StoreTransaction txh) throws BackendException {
         //Adapted from titan-berkeleyje implementation
         final TuplStoreTransaction tx = TuplStoreTransaction.getTx(txh);
@@ -164,16 +193,17 @@ public class TuplKeyValueStore implements OrderedKeyValueStore {
         }
     }
 
+    @Override
     public Map<KVQuery, RecordIterator<KeyValueEntry>> getSlices(List<KVQuery> queries, StoreTransaction txh)
             throws BackendException {
         throw new UnsupportedOperationException();
     }
 
-    static StaticBuffer getBuffer(byte[] entry) {
+    private static StaticBuffer getBuffer(byte[] entry) {
         return entry == null ? null : StaticArrayBuffer.of(entry);
     }
     
-    static byte[] getByteArray(StaticBuffer buffer) {
-        return buffer.as(StaticBuffer.ARRAY_FACTORY);
+    private static byte[] getByteArray(StaticBuffer buffer) {
+        return buffer == null ? null : buffer.as(StaticBuffer.ARRAY_FACTORY);
     }
 }

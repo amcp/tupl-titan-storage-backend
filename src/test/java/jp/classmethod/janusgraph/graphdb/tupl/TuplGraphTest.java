@@ -48,7 +48,7 @@ public class TuplGraphTest extends JanusGraphTest {
 
     @Override
     protected boolean isLockingOptimistic() {
-        return false;
+        return true;
     }
 
     @Override
