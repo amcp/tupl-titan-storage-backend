@@ -46,7 +46,7 @@ https://github.com/awslabs/dynamodb-titan-storage-backend/blob/1.0.0/pom.xml#L2
         <jdk.version>1.8</jdk.version>
         <janusgraph.version>0.1.0-SNAPSHOT</janusgraph.version>
         <tinkerpop.version>3.1.1-incubating</tinkerpop.version>
-        <tupl.version>v1.3.10.3</tupl.version>
+        <tupl.version>1.3.11</tupl.version>
         <dependency.plugin.version>2.10</dependency.plugin.version>
         <maven.assembly.plugin.version>2.5.5</maven.assembly.plugin.version>
         <maven.compiler.plugin.version>3.3</maven.compiler.plugin.version>
@@ -80,8 +80,8 @@ https://github.com/awslabs/dynamodb-titan-storage-backend/blob/1.0.0/pom.xml#L2
     <!-- Libraries -->
     <dependencies>
         <dependency>
-            <groupId>com.github.cojen</groupId>
-            <artifactId>Tupl</artifactId>
+            <groupId>org.cojen</groupId>
+            <artifactId>tupl</artifactId>
             <version>${tupl.version}</version>
         </dependency>
         <dependency>
@@ -310,10 +310,4 @@ https://github.com/awslabs/dynamodb-titan-storage-backend/blob/1.0.0/pom.xml#L2
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
 </project>
